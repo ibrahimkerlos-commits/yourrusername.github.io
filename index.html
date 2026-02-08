@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Selvia 💘</title>
+  <style>
+    :root { --bg1:#ffdde1; --bg2:#ee9ca7; --card:#ffffffcc; --text:#1a1a1a; }
+    * { box-sizing: border-box; }
+    body{
+      margin:0;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: radial-gradient(circle at top, var(--bg1), var(--bg2));
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      overflow:hidden;
+      padding: 18px;
+    }
+    .card{
+      width:min(680px, 100%);
+      background: var(--card);
+      border: 1px solid #ffffff70;
+      backdrop-filter: blur(10px);
+      border-radius: 22px;
+      padding: 26px 18px;
+      text-align:center;
+      box-shadow: 0 18px 40px rgba(0,0,0,.18);
+      position: relative;
+    }
+    h1{ margin: 0 0 8px; font-size: clamp(28px, 4vw, 44px); }
+    p{ margin: 6px 0 18px; font-size: clamp(16px, 2.2vw, 20px); }
+    .name{ font-weight:800; }
+    .buttons{
+      display:flex;
+      gap: 12px;
+      justify-content:center;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+    button{
+      border:0;
+      padding: 14px 18px;
+      border-radius: 14px;
+      font-size: 18px;
+      font-weight: 700;
+      cursor:pointer;
+      transition: transform .12s ease, box-shadow .12s ease;
+      box-shadow: 0 10px 20px rgba(0,0,0,.16);
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button:active{ transform: scale(.98); }
+    #yes{
+      background: #16a34a;
+      color: white;
+    }
+    #no{
+      background: #ef4444;
+      color: white;
+      position: relative;
+    }
+
+    .hearts {
+      position:absolute; inset:0;
+      pointer-events:none;
+      overflow:hidden;
+      border-radius: 22px;
+    }
+    .heart {
+      position:absolute;
+      font-size: 20px;
+      opacity: .9;
+      animation: floatUp linear forwards;
+      filter: drop-shadow(0 6px 10px rgba(0,0,0,.18));
+    }
+    @keyframes floatUp {
+      from { transform: translateY(0) scale(1); opacity: .95; }
+      to { transform: translateY(-520px) scale(1.3); opacity: 0; }
+    }
+
+    .msg{
+      margin-top: 18px;
+      font-size: 18px;
+      font-weight: 700;
+      display:none;
+    }
+    .msg.show{ display:block; }
+    .small{ font-weight: 600; opacity: .85; font-size: 14px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <div class="card" id="card">
+    <div class="hearts" id="hearts"></div>
+
+    <h1>Selvia 💖</h1>
+    <p>
+      I have one very important question…
+      <br />
+      <span class="name">Will you be my Valentine?</span>
+    </p>
+
+    <div class="buttons">
+      <button id="yes">YES 😍</button>
+      <button id="no">NO 🙄</button>
+    </div>
+
+    <div class="msg" id="msg"></div>
+    <div class="small">Tip: Try pressing “NO” 😉</div>
+  </div>
+
+  <script>
+    const yes = document.getElementById('yes');
+    const no = document.getElementById('no');
+    const msg = document.getElementById('msg');
+    const card = document.getElementById('card');
+    const hearts = document.getElementById('hearts');
+
+    function rand(min, max){ return Math.random() * (max - min) + min; }
+
+    function launchHearts(count = 24){
+      for(let i=0;i<count;i++){
+        const h = document.createElement('div');
+        h.className = 'heart';
+        h.textContent = ['💖','💘','💝','💕','❤️'][Math.floor(Math.random()*5)];
+        h.style.left = rand(10, card.clientWidth - 30) + 'px';
+        h.style.bottom = rand(10, 40) + 'px';
+        h.style.fontSize = rand(18, 34) + 'px';
+        h.style.animationDuration = rand(1.2, 2.4) + 's';
+        hearts.appendChild(h);
+        setTimeout(()=>h.remove(), 2600);
+      }
+    }
+
+    function moveNoButton(){
+      // Move within the card bounds
+      const cardRect = card.getBoundingClientRect();
+      const noRect = no.getBoundingClientRect();
+
+      // Make #no absolutely positioned inside the card for free movement
+      no.style.position = 'absolute';
+
+      // Ensure it's moved relative to card
+      const padding = 16;
+      const maxX = card.clientWidth - no.offsetWidth - padding;
+      const maxY = card.clientHeight - no.offsetHeight - padding;
+
+      const x = Math.max(padding, Math.min(maxX, rand(padding, maxX)));
+      const y = Math.max(padding, Math.min(maxY, rand(120, maxY)));
+
+      no.style.left = x + 'px';
+      no.style.top  = y + 'px';
+      no.style.transform = 'rotate(' + rand(-8, 8) + 'deg)';
+    }
+
+    // Desktop: dodge on hover
+    no.addEventListener('mouseenter', moveNoButton);
+
+    // Mobile: dodge on touch attempt
+    no.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      moveNoButton();
+    }, { passive: false });
+
+    // Also dodge if she somehow focuses it
+    no.addEventListener('click', (e) => {
+      e.preventDefault();
+      moveNoButton();
+    });
+
+    yes.addEventListener('click', () => {
+      msg.textContent = "YAAAY!! 💞 I knew you'd say yes 😍";
+      msg.classList.add('show');
+      launchHearts(40);
+      yes.disabled = true;
+      no.disabled = true;
+      yes.style.opacity = 0.9;
+      no.style.opacity = 0.7;
+    });
+
+    // Start with the NO button a little mischievous
+    setTimeout(moveNoButton, 700);
+  </script>
+</body>
+</html>
